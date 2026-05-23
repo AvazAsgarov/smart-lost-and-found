@@ -13,6 +13,11 @@ pydantic==2.6.4
 pydantic-settings==2.2.1
 python-dotenv==1.0.1
 
+# --- AI provider SDKs ---
+openai==1.30.5                  # OpenAI GPT-4o (primary VLM + embeddings)
+google-genai==1.10.0            # Google Gemini 2.0 Flash (secondary/failover VLM)
+anthropic==0.26.1               # Anthropic Claude (optional third provider)
+
 # --- Numerical / AI ---
 numpy==1.26.4
 
