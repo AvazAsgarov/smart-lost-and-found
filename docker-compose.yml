@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      target: runtime
+    image: smart-lost-and-found:latest
+    container_name: lostfound-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:///./data/lostfound.db
+      IMAGES_DIR: /app/data/images
+      COST_LOG_PATH: /app/artefacts/cost.jsonl
+      OTLP_ENDPOINT: http://jaeger:4317
+    volumes:
+      - lostfound-data:/app/data
+      - lostfound-artefacts:/app/artefacts
+    depends_on:
+      - jaeger
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  ui:
+    build:
+      context: .
+      target: runtime
+    image: smart-lost-and-found:latest
+    container_name: lostfound-ui
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:///./data/lostfound.db
+      IMAGES_DIR: /app/data/images
+      COST_LOG_PATH: /app/artefacts/cost.jsonl
+    volumes:
+      - lostfound-data:/app/data
+      - lostfound-artefacts:/app/artefacts
+    depends_on:
+      - api
+    command:
+      - streamlit
+      - run
+      - ui/app.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+      - --server.headless=true
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: lostfound-jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
+volumes:
+  lostfound-data:
+  lostfound-artefacts:
