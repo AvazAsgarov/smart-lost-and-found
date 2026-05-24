@@ -33,7 +33,6 @@ test.db
 *.db
 
 artefacts/*.log
-artefacts/*.jsonl
 artefacts/*.txt
 
 .claude/
