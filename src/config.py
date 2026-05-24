@@ -19,7 +19,6 @@ import logging
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-load_dotenv()
 
 class Settings(BaseSettings):
     """Typed, validated settings sourced from environment variables or ``.env``.
